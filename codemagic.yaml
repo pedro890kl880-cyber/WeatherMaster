@@ -1,33 +1,32 @@
 Workflows:
   ios-workflow:
     name: Weather Master iOS Build
+    max_build_duration: 120
 
     environment:
       flutter: stable
       xcode: latest
-
-      ios_signing:
-        distribution_type: development
-        bundle_identifier: O.TEU.BUNDLE.ID
+      cocoapods: default
 
     scripts:
-      - name: Add ios platform
+      - name: Add iOS platform
         script: |
           flutter create . --platforms=ios
 
       - name: Verify project structure
         script: |
           ls -la
+          ls -la ios
 
       - name: Get Flutter packages
         script: |
           flutter pub get
 
-      - name: Set up code signing
+      - name: Install CocoaPods dependencies
         script: |
-          xcode-project use-profiles
+          find . -name "Podfile" -execdir pod install \;
 
-      - name: Build IPA
+      - name: Build iOS IPA
         script: |
           flutter build ipa --release
 
