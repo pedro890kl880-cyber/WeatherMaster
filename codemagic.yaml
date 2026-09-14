@@ -1,1 +1,27 @@
-
+workflows:
+  ios-workflow:
+    name: Weather Master iOS Build
+    environment:
+      flutter: stable
+      xcode: latest
+    scripts:
+      - name: Add ios platform
+        script: |
+          flutter create . --platforms=ios
+      - name: Verify project structure
+        script: |
+          ls -la
+      - name: Get Flutter packages
+        script: |
+          flutter pub get
+      - name: Build ios app for sideloading
+        script: |
+          flutter build ios --release --no-codesign
+          cd build/ios/iphoneos
+          mkdir Payload
+          cd Payload
+          ln -s ../Runner.app Runner.app
+          zip -r ../WeatherMaster.ipa Payload
+          cd ../../..
+    artifacts:
+      - build/ios/iphoneos/WeatherMaster.ipa
