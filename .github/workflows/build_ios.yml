@@ -1,7 +1,7 @@
 name: Build iOS Weather Master
 
 on:
-  workflow_dispatch: # Permite-nos iniciar o processo manualmente quando quisermos
+  workflow_dispatch:
 
 jobs:
   build:
@@ -23,18 +23,25 @@ jobs:
           channel: 'stable'
 
       - name: Instalar dependências do projeto
-        run: flutter pub get
+        run: |
+          # Procura automaticamente pela pasta que contém o ficheiro pubspec.yaml
+          PROJECT_DIR=$(find . -name "pubspec.yaml" -maxdepth 3 -exec dirname {} \;)
+          echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
+          cd "$PROJECT_DIR"
+          flutter pub get
 
       - name: Compilar app para iOS (modo release sem assinatura)
-        run: flutter build ios --release --no-codesign
+        run: |
+          cd "${{ env.PROJECT_DIR }}"
+          flutter build ios --release --no-codesign
 
       - name: Comprimir a build para descarregar
         run: |
-          cd build/ios/iphoneos
+          cd "${{ env.PROJECT_DIR }}/build/ios/iphoneos"
           zip -r Runner.zip Runner.app
 
       - name: Guardar o ficheiro gerado
         uses: actions/upload-artifact@v4
         with:
           name: ios-app-build
-          path: build/ios/iphoneos/Runner.zip
+          path: ${{ env.PROJECT_DIR }}/build/ios/iphoneos/Runner.zip
