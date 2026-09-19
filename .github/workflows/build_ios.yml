@@ -24,16 +24,13 @@ jobs:
 
       - name: Localizar pasta real e compilar
         run: |
-          # Mostra a estrutura para sabermos exatamente onde estamos
-          echo "Conteúdo atual:"
-          ls -la
+          # Vamos procurar por todas as pastas que contenham um pubspec.yaml
+          echo "A procurar o pubspec.yaml em todo o repositório:"
+          find . -name "pubspec.yaml"
           
-          # Procura a pasta onde está o pubspec.yaml ignorando pastas ocultas
-          PUBSPEC_FILE=$(find . -name "pubspec.yaml" -not -path "*/.*" -not -path "./.git/*" | head -n 1)
-          echo "Ficheiro encontrado em: $PUBSPEC_FILE"
-          
-          PROJECT_DIR=$(dirname "$PUBSPEC_FILE")
-          echo "Diretório do projeto: $PROJECT_DIR"
+          # Entra automaticamente na pasta onde está o pubspec.yaml
+          PROJECT_DIR=$(dirname "$(find . -name "pubspec.yaml" -not -path "*/.*" -print -quit)")
+          echo "A entrar na pasta: $PROJECT_DIR"
           
           cd "$PROJECT_DIR"
           flutter pub get
