@@ -22,18 +22,17 @@ jobs:
           flutter-version: '3.x'
           channel: 'stable'
 
-      - name: Encontrar pasta do projeto e compilar
+      - name: Localizar pasta real do projeto e compilar
         run: |
-          # Procura a pasta exata onde está o pubspec.yaml
-          PUBSPEC_PATH=$(find . -name "pubspec.yaml" -print -quit)
-          PROJECT_DIR=$(dirname "$PUBSPEC_PATH")
-          echo "Projeto encontrado em: $PROJECT_DIR"
+          # Procura a pasta exata onde o pubspec.yaml realmente está escondido
+          PROJECT_DIR=$(dirname "$(find . -name "pubspec.yaml" -not -path "*/.*" -print -quit)")
+          echo "Pasta encontrada: $PROJECT_DIR"
           
           cd "$PROJECT_DIR"
           flutter pub get
           flutter build ios --release --no-codesign
           
-          # Guarda o caminho absoluto para o artefacto
+          # Prepara o artefacto
           mkdir -p /tmp/artifact
           cp -R build/ios/iphoneos/Runner.app /tmp/artifact/
 
