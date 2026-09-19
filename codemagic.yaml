@@ -1,15 +1,16 @@
 workflows:
-  ios-release-build:
-    name: Weather Master iOS Build
-    max_build_duration: 30
+  weather-master-ios:
+    name: WeatherMaster iOS Build
+    max_build_duration: 60
+    instance_type: mac_mini_m2
     environment:
       flutter: stable
       xcode: latest
     scripts:
-      - name: Get dependencies
+      - name: Get Flutter packages
         script: |
           flutter pub get
-      - name: Build IPA
+      - name: Build ipa for development/sideloading
         script: |
           flutter build ipa --release --no-codesign
     artifacts:
