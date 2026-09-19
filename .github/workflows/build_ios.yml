@@ -1,0 +1,40 @@
+name: Build iOS Weather Master
+
+on:
+  workflow_dispatch: # Permite-nos iniciar o processo manualmente quando quisermos
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Descarregar código do repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar o Java (necessário para dependências do Flutter)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Configurar o Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+          channel: 'stable'
+
+      - name: Instalar dependências do projeto
+        run: flutter pub get
+
+      - name: Compilar app para iOS (modo release sem assinatura)
+        run: flutter build ios --release --no-codesign
+
+      - name: Comprimir a build para descarregar
+        run: |
+          cd build/ios/iphoneos
+          zip -r Runner.zip Runner.app
+
+      - name: Guardar o ficheiro gerado
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-app-build
+          path: build/ios/iphoneos/Runner.zip
