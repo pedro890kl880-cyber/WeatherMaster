@@ -10,7 +10,7 @@ jobs:
       - name: Descarregar código do repositório
         uses: actions/checkout@v4
 
-      - name: Configurar o Java (necessário para dependências do Flutter)
+      - name: Configurar o Java
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
@@ -22,26 +22,23 @@ jobs:
           flutter-version: '3.x'
           channel: 'stable'
 
-      - name: Instalar dependências do projeto
+      - name: Encontrar pasta do projeto e compilar
         run: |
-          # Procura automaticamente pela pasta que contém o ficheiro pubspec.yaml
-          PROJECT_DIR=$(find . -name "pubspec.yaml" -maxdepth 3 -exec dirname {} \;)
-          echo "PROJECT_DIR=$PROJECT_DIR" >> $GITHUB_ENV
+          # Procura a pasta exata onde está o pubspec.yaml
+          PUBSPEC_PATH=$(find . -name "pubspec.yaml" -print -quit)
+          PROJECT_DIR=$(dirname "$PUBSPEC_PATH")
+          echo "Projeto encontrado em: $PROJECT_DIR"
+          
           cd "$PROJECT_DIR"
           flutter pub get
-
-      - name: Compilar app para iOS (modo release sem assinatura)
-        run: |
-          cd "${{ env.PROJECT_DIR }}"
           flutter build ios --release --no-codesign
-
-      - name: Comprimir a build para descarregar
-        run: |
-          cd "${{ env.PROJECT_DIR }}/build/ios/iphoneos"
-          zip -r Runner.zip Runner.app
+          
+          # Guarda o caminho absoluto para o artefacto
+          mkdir -p /tmp/artifact
+          cp -R build/ios/iphoneos/Runner.app /tmp/artifact/
 
       - name: Guardar o ficheiro gerado
         uses: actions/upload-artifact@v4
         with:
           name: ios-app-build
-          path: ${{ env.PROJECT_DIR }}/build/ios/iphoneos/Runner.zip
+          path: /tmp/artifact/Runner.app
