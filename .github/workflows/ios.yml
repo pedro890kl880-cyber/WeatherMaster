@@ -1,1 +1,42 @@
+name: Build Weather Master iOS
 
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    name: Build iOS App
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java (required for some Android/Flutter tooling if needed)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.x' # Podes ajustar para a versão estável que o teu projeto usa
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify Flutter environment
+        run: flutter doctor
+
+      # Nota: Para assinar o pacote iOS (IPA) para dispositivos reais sem conta de programador paga, 
+      # a compilação completa para .ipa requer certificados (Provisioning Profiles). 
+      # Por agora, este passo compila o código e valida se está tudo pronto sem erros de sintaxe.
+      - name: Build iOS App (Runner)
+        run: flutter build ios --release --no-codesign
