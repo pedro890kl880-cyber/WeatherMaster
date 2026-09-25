@@ -1,40 +1,20 @@
-name: Build Weather Master iOS
+name: weather_master
+description: A weather application built with Flutter.
+publish_to: 'none'
+version: 1.0.0+1
 
-on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
-  workflow_dispatch:
+environment:
+  sdk: '>=3.0.0 <4.0.0'
 
-jobs:
-  build-ios:
-    name: Build iOS App
-    runs-on: macos-latest
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.19.x'
-          channel: 'stable'
-          cache: true
-
-      - name: Install dependencies
-        run: flutter pub get
-        # Como o pubspec.yaml está na raiz (onde o git faz o checkout), corre diretamente aqui
-
-      - name: Verify Flutter environment
-        run: flutter doctor
-
-      - name: Build iOS App (Runner)
-        run: flutter build ios --release --no-codesign
+flutter:
+  uses-material-design: true
